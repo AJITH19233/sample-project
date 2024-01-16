@@ -3,13 +3,16 @@ import axios from 'axios';
 import { Button, Form, Modal } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import "./styledash.css";
+
 const Studentdash = () => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
-  const [show, setShow] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState('');
+  const [userDetails, setUserDetails] = useState(null);
 
   useEffect(() => {
+    // Fetch projects from the backend when the component mounts
     axios.get('http://localhost:3000/project')
       .then(response => {
         console.log('Fetched data:', response.data);
@@ -20,6 +23,16 @@ const Studentdash = () => {
       });
   }, []);
 
+  const fetchUserDetails = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/user/${email}/selected-project`);
+      console.log('User details:', response.data);
+      setUserDetails(response.data);
+    } catch (error) {
+      console.error('Error fetching user details:', error);
+    }
+  };
+
   const registration = async () => {
     try {
       if (!selectedProject) {
@@ -27,7 +40,8 @@ const Studentdash = () => {
         return;
       }
 
-      const response = await axios.post('http://localhost:3000/register', {
+      // Send registration request to the backend
+      const response = await axios.post('http://localhost:3000/selectedproject', {
         projectId: selectedProject._id,
         title: selectedProject.title,
         email: email,
@@ -35,12 +49,10 @@ const Studentdash = () => {
 
       console.log('Registration successful:', response.data);
 
-      // Optionally, you can handle success, e.g., show a success message, redirect, etc.
-      // ...
-
+      // Fetch user details after successful registration
+      fetchUserDetails();
     } catch (error) {
       console.error('Error during registration:', error);
-      // Optionally, you can handle the error, e.g., show an error message, etc.
     } finally {
       // Close the modal whether registration was successful or not
       handleClose();
@@ -48,12 +60,14 @@ const Studentdash = () => {
   };
 
   const handleShow = (project) => {
+    // Set the selected project and show the modal
     setSelectedProject(project);
-    setShow(true);
+    setShowModal(true);
   };
 
   const handleClose = () => {
-    setShow(false);
+    // Close the modal and reset state
+    setShowModal(false);
     setSelectedProject(null);
     setEmail('');
   };
@@ -73,9 +87,9 @@ const Studentdash = () => {
       </div>
 
       {/* Bootstrap Modal */}
-      <Modal show={show} onHide={handleClose}>
+      <Modal show={showModal} onHide={handleClose}>
         <Modal.Header closeButton>
-          <Modal.Title>Please enter your registered mail to continue</Modal.Title>
+          <Modal.Title>Please enter your registered email to continue</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form>
@@ -102,9 +116,18 @@ const Studentdash = () => {
       </Modal>
 
       {/* React Router Link to navigate to another page */}
-      <Link to="/selected-project">
+      <Link to={userDetails}>
         <Button variant="primary">Go to Selected Project Page</Button>
       </Link>
+
+      {/* Display user details and selected project details */}
+      {userDetails && (
+        <div>
+          <h3>User Details</h3>
+          <p>Email: {userDetails.email}</p>
+          <p>Selected Project: {userDetails.selectedProject.title}</p>
+        </div>
+      )}
     </div>
   );
 };
