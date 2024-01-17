@@ -298,7 +298,7 @@
     }
   
     margin: 40px 0;
-    overflow: hidden;
+    /* overflow: hidden; */
     z-index: 2;
   
     button {
@@ -420,18 +420,17 @@
     background-repeat: no-repeat;
     min-height: 100vh;
     font-family: 'Roboto', sans-serif;
-    overflow: hidden;
-  }
+    /* overflow: hidden;*/
+  } 
   
-  html {
-    overflow: hidden;
-  }
+  
   
   .materialContainer {
     width: 100%;
+    align-items: center;
     max-width: 460px;
     position: absolute;
-    top: 30%;
+    top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
     -webkit-transform: translate(-50%, -50%);
